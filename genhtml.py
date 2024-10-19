@@ -6,14 +6,10 @@ def clean_filename(filename):
     return filename.strip().replace('\u200e', '').replace('\u202c', '').replace('\u202a', '')
 
 # Fonction pour générer une bulle de message HTML
-def generate_message_bubble(sender, message, timestamp, is_media=False, media_file=None):
-    if is_media and media_file:
-        # Nettoyer le nom du fichier pour éviter les caractères invisibles
-        media_file = clean_filename(media_file)
-        message_html = f'<img src="{media_file}" alt="Media" style="max-width: 200px;"/>'
-    else:
-        # Remplacer les sauts de ligne par des balises <br> pour le rendu HTML
-        message_html = message.replace("\n", "<br>")
+def generate_message_bubble(sender, message, timestamp):
+    # Remplacer les sauts de ligne par des balises <br> pour le rendu HTML
+    message_html = message.replace("\n", "<br>")
+
     me = "Agnès Cantone"
     sender_class = "sender-me" if me in sender else "sender-other"
     
@@ -77,12 +73,22 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
                     media_file = clean_filename(message.split(" ")[0].strip("()"))
                     media_file_path = os.path.join(media_dir, media_file)  # Chemin complet du média
                     is_media = True
-                    current_message = f'<a href="{media_file_path}"><img src="{media_file_path}" alt="Media" style="max-width: 200px;"/></a>'  # On prépare le chemin pour l'affichage d'image
+                    file_extension = os.path.splitext(media_file)[1].lower()  # Obtenir l'extension du fichier
+                    
+                    # Afficher une image spécifique en fonction de l'extension du fichier
+                    if file_extension == ".mp4":  # Vidéos
+                        current_message = f'<a href="{media_file_path}"><img src="pics/play_video.png" alt="Video" style="max-width: 100px;"/></a>'
+                    elif file_extension == ".mp3":  # Audio
+                        current_message = f'<a href="{media_file_path}"><img src="pics/play_audio.png" alt="Audio" style="max-width: 100px;"/></a>'
+                    elif file_extension in [".jpg", ".jpeg", ".png", ".webp"]:  # Images
+                        current_message = f'<a href="{media_file_path}"><img src="{media_file_path}" alt="Media" style="max-width: 200px;"/></a>'
+                    else:  # Autres fichiers
+                        current_message = f'<a href="{media_file_path}"><img src="pics/fichier.png" alt="Fichier" style="max-width: 100px;"/></a>'
                 else:
                     is_media = False
                     media_file = None
                     current_message = message.strip()  # Nettoyer le message
-                    
+                
                 # Mettre à jour le sender et le timestamp
                 current_sender = sender.strip()
                 current_timestamp = timestamp.strip()
