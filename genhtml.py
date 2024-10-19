@@ -14,12 +14,13 @@ def generate_message_bubble(sender, message, timestamp, is_media=False, media_fi
     else:
         # Remplacer les sauts de ligne par des balises <br> pour le rendu HTML
         message_html = message.replace("\n", "<br>")
+    me = "Agnès Cantone"
+    sender_class = "sender-me" if me in sender else "sender-other"
     
-    sender_class = "sender-me" if "Bruno Cantone" in sender else "sender-other"
-    
+    # Inclure le nom de l'expéditeur avec l'horodatage
     bubble_html = f'''
     <div class="{sender_class}">
-        <div class="timestamp">{timestamp}</div>
+        <div class="timestamp">{timestamp} - <strong>{sender}</strong></div>
         <div class="message">{message_html}</div>
     </div>
     '''
@@ -76,7 +77,7 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
                     media_file = clean_filename(message.split(" ")[0].strip("()"))
                     media_file_path = os.path.join(media_dir, media_file)  # Chemin complet du média
                     is_media = True
-                    current_message = f'<img src="{media_file_path}" alt="Media" style="max-width: 200px;"/>'  # On prépare le chemin pour l'affichage d'image
+                    current_message = f'<a href="{media_file_path}"><img src="{media_file_path}" alt="Media" style="max-width: 200px;"/></a>'  # On prépare le chemin pour l'affichage d'image
                 else:
                     is_media = False
                     media_file = None
