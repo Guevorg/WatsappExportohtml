@@ -76,7 +76,7 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
                     media_file = clean_filename(message.split(" ")[0].strip("()"))
                     media_file_path = os.path.join(media_dir, media_file)  # Chemin complet du média
                     is_media = True
-                    current_message = media_file_path  # On prépare le chemin pour l'affichage d'image
+                    current_message = f'<img src="{media_file_path}" alt="Media" style="max-width: 200px;"/>'  # On prépare le chemin pour l'affichage d'image
                 else:
                     is_media = False
                     media_file = None
