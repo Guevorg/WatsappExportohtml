@@ -12,7 +12,8 @@ def generate_message_bubble(sender, message, timestamp, is_media=False, media_fi
         media_file = clean_filename(media_file)
         message_html = f'<img src="{media_file}" alt="Media" style="max-width: 200px;"/>'
     else:
-        message_html = message
+        # Remplacer les sauts de ligne par des balises <br> pour le rendu HTML
+        message_html = message.replace("\n", "<br>")
     
     sender_class = "sender-me" if "Bruno Cantone" in sender else "sender-other"
     
@@ -48,9 +49,18 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
         <div class="chat-container">
     '''
     
+    # Variables pour stocker le message en cours
+    current_message = ""
+    current_sender = ""
+    current_timestamp = ""
+
     # Parcourir chaque ligne de la discussion
     for line in lines:
         if " - " in line:
+            # Si on a un message en cours, on l'ajoute à l'HTML
+            if current_message:
+                html_content += generate_message_bubble(current_sender, current_message, current_timestamp)
+            
             # Extraire le timestamp, le nom de l'expéditeur et le message
             timestamp, remainder = line.split(" - ", 1)
             if ": " in remainder:
@@ -58,7 +68,7 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
                 
                 if "<Médias omis>" in message:
                     # Cas où le média est omis (pas de fichier précis)
-                    message = "[Médias omis]"
+                    current_message = "[Médias omis]"
                     is_media = False
                     media_file = None
                 elif "fichier joint" in message:
@@ -66,14 +76,24 @@ def generate_html_from_whatsapp_chat(chat_file, media_dir, output_html_file):
                     media_file = clean_filename(message.split(" ")[0].strip("()"))
                     media_file_path = os.path.join(media_dir, media_file)  # Chemin complet du média
                     is_media = True
-                    message = f'{media_file}'  # On n'affiche que le nom du fichier dans le message
+                    current_message = media_file_path  # On prépare le chemin pour l'affichage d'image
                 else:
                     is_media = False
                     media_file = None
-                
-                # Générer le HTML pour la bulle de message
-                html_content += generate_message_bubble(sender, message, timestamp, is_media, media_file_path if is_media else None)
-    
+                    current_message = message.strip()  # Nettoyer le message
+                    
+                # Mettre à jour le sender et le timestamp
+                current_sender = sender.strip()
+                current_timestamp = timestamp.strip()
+        else:
+            # Ajouter le texte de la ligne à current_message (multi-lignes)
+            if current_message:
+                current_message += "\n" + line.strip()
+
+    # Ajouter le dernier message restant s'il existe
+    if current_message:
+        html_content += generate_message_bubble(current_sender, current_message, current_timestamp)
+
     # Clôturer le fichier HTML
     html_content += '''
         </div>
