@@ -30,6 +30,7 @@ Copier le code
 ├── whatsapp_conversation.html    # Fichier HTML généré, contenant la conversation formatée
 │
 └── run.py                       # Script principal à exécuter
+
 Étapes pour exécuter le programme :
 Télécharger le fichier ZIP de la conversation WhatsApp :
 
@@ -43,8 +44,10 @@ Ouvrez une console ou un terminal.
 Naviguez jusqu'au dossier où se trouvent run.py et le fichier ZIP.
 Exécutez la commande suivante :
 bash
-Copier le code
+Copier le code :
+
 python run.py
+
 Résultats attendus :
 
 Le fichier ZIP sera automatiquement décompressé dans un dossier media/.
